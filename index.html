@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emergency by Default &mdash; Cleveland City Council Emergency Ordinances | The FixOurStreets216 Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --steel:#243038; --steel-2:#1b242b; --steel-3:#141b21; --steel-4:#0d1317;
+  --orange:#E1560F; --orange-br:#FF6A1A;
+  --teal:#0E8E84; --teal-br:#19C3B2;
+  --paper:#F4F1EC; --paper-2:#DCD6CC;
+  --ink:#0B1014;
+  --line:rgba(244,241,236,.14);
+  --line-2:rgba(244,241,236,.28);
+  --sans:'Archivo','Archivo Narrow','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--steel-4); color:var(--paper);
+  font-family:var(--sans); -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+
+/* ---------- DECK SHELL ---------- */
+#deck{position:relative;width:100vw;height:100vh;overflow:hidden}
+.slide{
+  position:absolute; inset:0;
+  display:none; flex-direction:column;
+  padding:clamp(20px,3.2vh,44px) clamp(20px,4vw,72px) 74px;
+  background:
+    radial-gradient(1200px 620px at 80% -12%, rgba(14,142,132,.20), transparent 62%),
+    radial-gradient(900px 520px at 4% 108%, rgba(225,86,15,.17), transparent 60%),
+    linear-gradient(168deg,var(--steel) 0%, var(--steel-2) 48%, var(--steel-4) 100%);
+  overflow:hidden;
+}
+.slide.on{display:flex;animation:fade .34s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.30;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px; mask-image:linear-gradient(180deg,rgba(0,0,0,.55),transparent 72%);
+  -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.55),transparent 72%);
+}
+.body{position:relative;z-index:2;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:6px;
+  scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;
+  display:flex;flex-direction:column;justify-content:flex-start;gap:clamp(11px,1.7vh,20px)}
+.body > *{flex-shrink:0}
+.body > *[style*="margin-top"]{margin-top:0!important}
+.body::-webkit-scrollbar{width:8px}
+.body::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
+
+/* ---------- HEADER ---------- */
+.shead{position:relative;z-index:3;display:flex;align-items:flex-start;gap:18px;
+  border-bottom:2px solid var(--orange); padding-bottom:12px; margin-bottom:clamp(14px,2.4vh,26px); flex-shrink:0}
+.shead .mark{width:clamp(40px,4.4vh,60px);height:clamp(40px,4.4vh,60px);flex-shrink:0;
+  filter:drop-shadow(0 0 7px rgba(255,255,255,.95)) drop-shadow(0 0 18px rgba(255,255,255,.45))}
+.shead .txt{flex:1;min-width:0}
+.kicker{font-family:var(--mono);font-size:clamp(9px,1.05vh,11.5px);letter-spacing:.20em;text-transform:uppercase;color:var(--teal-br);margin-bottom:5px;font-weight:500}
+.kicker .part{color:var(--orange-br)}
+h1.stitle{font-size:clamp(21px,3.8vh,44px);line-height:1.06;font-weight:800;letter-spacing:-.018em;text-wrap:balance}
+h1.stitle em{font-style:normal;color:var(--orange-br)}
+.sub{margin-top:8px;font-size:clamp(13px,1.78vh,18px);line-height:1.45;color:var(--paper-2);max-width:96ch;font-weight:400}
+
+/* ---------- TITLE BLOCK FOOTER (FOS216 drawing-set convention) ---------- */
+.tblock{position:absolute;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:stretch;
+  border-top:1px solid var(--line-2);background:rgba(9,14,17,.90);backdrop-filter:blur(6px);
+  font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;height:46px}
+.tb{padding:7px 14px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;gap:2px;white-space:nowrap}
+.tb .lbl{color:rgba(244,241,236,.42);font-size:8.5px;letter-spacing:.17em}
+.tb .val{color:var(--paper);font-weight:500;font-size:10.5px;letter-spacing:.055em}
+.tb.grow{flex:1;overflow:hidden;border-right:none}
+.tb.grow .val{text-overflow:ellipsis;overflow:hidden}
+.tb .val.o{color:var(--orange-br)}
+.tb .val.t{color:var(--teal-br)}
+
+/* ---------- NAV ---------- */
+#nav{position:fixed;right:14px;bottom:56px;z-index:20;display:flex;gap:7px;align-items:center}
+.nbtn{width:34px;height:34px;border:1px solid var(--line-2);background:rgba(20,27,33,.88);color:var(--paper);
+  border-radius:5px;cursor:pointer;font-size:14px;display:grid;place-items:center;transition:.16s;font-family:var(--mono)}
+.nbtn:hover{background:var(--orange);border-color:var(--orange);transform:translateY(-1px)}
+#bar{position:fixed;left:0;top:0;height:3px;background:linear-gradient(90deg,var(--orange),var(--orange-br),var(--teal-br));z-index:30;transition:width .28s ease;width:0}
+
+/* ---------- INDEX OVERLAY ---------- */
+#idx{position:fixed;inset:0;z-index:60;background:rgba(8,12,15,.975);display:none;padding:34px clamp(20px,5vw,70px);overflow-y:auto}
+#idx.on{display:block}
+#idx h2{font-size:19px;letter-spacing:.2em;font-family:var(--mono);color:var(--teal-br);text-transform:uppercase;margin-bottom:20px;font-weight:500}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.icell{border:1px solid var(--line);border-left:3px solid var(--orange);padding:9px 13px;cursor:pointer;transition:.14s;background:rgba(255,255,255,.02);border-radius:0 4px 4px 0}
+.icell:hover{background:rgba(225,86,15,.17);border-left-color:var(--teal-br);transform:translateX(3px)}
+.icell .n{font-family:var(--mono);font-size:9.5px;color:var(--teal-br);letter-spacing:.16em}
+.icell .t{font-size:13.5px;margin-top:3px;font-weight:600;line-height:1.3}
+
+/* ---------- CONTENT PRIMITIVES ---------- */
+.grid{display:grid;gap:clamp(11px,1.7vh,20px)}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g21{grid-template-columns:1.35fr 1fr}
+.g12{grid-template-columns:1fr 1.5fr}
+
+.card{background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+  border:1px solid var(--line);border-radius:7px;padding:clamp(14px,2.2vh,24px);position:relative;overflow:hidden}
+.card.o{border-left:4px solid var(--orange)}
+.card.t{border-left:4px solid var(--teal-br)}
+.card.warn{border-left:4px solid var(--orange);background:linear-gradient(160deg,rgba(225,86,15,.15),rgba(225,86,15,.04))}
+.card.good{border-left:4px solid var(--teal-br);background:linear-gradient(160deg,rgba(25,195,178,.14),rgba(25,195,178,.035))}
+.card h3{font-size:clamp(14px,1.95vh,19px);font-weight:700;margin-bottom:7px;letter-spacing:-.01em;line-height:1.2}
+.card h3 .num{font-family:var(--mono);color:var(--orange-br);font-size:.82em;margin-right:7px;font-weight:700}
+.card p{font-size:clamp(12px,1.72vh,16px);line-height:1.55;color:var(--paper-2)}
+.card p + p{margin-top:7px}
+.eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:var(--teal-br);margin-bottom:7px;font-weight:500}
+.eyebrow.o{color:var(--orange-br)}
+
+ul.bul{list-style:none;font-size:clamp(12px,1.72vh,16px);line-height:1.55;color:var(--paper-2)}
+ul.bul li{position:relative;padding-left:19px;margin-bottom:8px}
+ul.bul li::before{content:"";position:absolute;left:0;top:.52em;width:7px;height:7px;background:var(--orange);transform:rotate(45deg)}
+ul.bul.t li::before{background:var(--teal-br)}
+ul.bul li strong{color:var(--paper);font-weight:700}
+ol.num{list-style:none;counter-reset:s;font-size:clamp(12px,1.72vh,16px);line-height:1.55;color:var(--paper-2)}
+ol.num li{counter-increment:s;position:relative;padding-left:34px;margin-bottom:11px}
+ol.num li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:-1px;font-family:var(--mono);font-size:12px;color:var(--orange-br);font-weight:700;
+  border:1px solid var(--line-2);border-radius:3px;padding:1px 5px;line-height:1.25}
+ol.num li strong{color:var(--paper);font-weight:700;display:block;margin-bottom:2px}
+
+.stat{text-align:center;padding:clamp(12px,2vh,22px) 10px;border:1px solid var(--line);border-radius:7px;
+  background:linear-gradient(170deg,rgba(255,255,255,.06),rgba(255,255,255,.015))}
+.stat .big{font-family:var(--sans);font-size:clamp(30px,6.4vh,68px);font-weight:900;line-height:.92;letter-spacing:-.035em;
+  background:linear-gradient(160deg,var(--orange-br),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat.tl .big{background:linear-gradient(160deg,var(--teal-br),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .lab{font-family:var(--mono);font-size:clamp(9px,1.22vh,12px);letter-spacing:.14em;text-transform:uppercase;color:var(--paper-2);margin-top:9px;line-height:1.42}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:clamp(11px,1.6vh,15px)}
+table.tbl th{background:rgba(225,86,15,.20);text-align:left;padding:9px 11px;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.13em;text-transform:uppercase;border-bottom:2px solid var(--orange);color:var(--paper);font-weight:500;vertical-align:bottom}
+table.tbl th.t{background:rgba(25,195,178,.18);border-bottom-color:var(--teal-br)}
+table.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--paper-2);line-height:1.4;vertical-align:top}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl.tight td{padding:6px 12px}
+table.tbl.tight th{padding:7px 12px}
+table.tbl tbody tr:nth-child(even){background:rgba(255,255,255,.028)}
+table.tbl td.k{color:var(--paper);font-weight:600}
+.yes{color:var(--teal-br);font-weight:700}
+.no{color:var(--orange-br);font-weight:700}
+
+blockquote.q{border-left:4px solid var(--teal-br);padding:14px 0 14px 19px;font-size:clamp(13px,1.95vh,19px);
+  line-height:1.5;font-style:italic;color:var(--paper);background:linear-gradient(90deg,rgba(25,195,178,.09),transparent)}
+blockquote.q cite{display:block;margin-top:9px;font-style:normal;font-family:var(--mono);font-size:10px;
+  letter-spacing:.11em;color:var(--teal-br);text-transform:uppercase}
+blockquote.q.o{border-left-color:var(--orange);background:linear-gradient(90deg,rgba(225,86,15,.11),transparent)}
+blockquote.q.o cite{color:var(--orange-br)}
+
+.chip{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  padding:3px 9px;border:1px solid var(--line-2);border-radius:99px;color:var(--paper-2);margin:0 5px 5px 0}
+.chip.o{border-color:var(--orange);color:var(--orange-br);background:rgba(225,86,15,.13)}
+.chip.t{border-color:var(--teal-br);color:var(--teal-br);background:rgba(25,195,178,.11)}
+
+.code{font-family:var(--mono);font-size:clamp(10.5px,1.48vh,13.5px);line-height:1.62;background:rgba(0,0,0,.42);
+  border:1px solid var(--line);border-left:3px solid var(--teal-br);border-radius:5px;padding:13px 15px;color:var(--paper-2);white-space:pre-wrap}
+.code b{color:var(--teal-br);font-weight:700}
+.code .add{color:var(--teal-br)}
+
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.step{flex:1;min-width:112px;border:1px solid var(--line);border-top:3px solid var(--teal-br);border-radius:0 0 6px 6px;
+  padding:13px 14px;background:rgba(255,255,255,.035);position:relative}
+.step.o{border-top-color:var(--orange)}
+.step .sn{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--teal-br);margin-bottom:5px}
+.step.o .sn{color:var(--orange-br)}
+.step .st{font-size:clamp(11.5px,1.6vh,15px);font-weight:700;line-height:1.25;margin-bottom:4px}
+.step .sd{font-size:clamp(10.5px,1.45vh,13.5px);color:var(--paper-2);line-height:1.45}
+
+.note{font-family:var(--mono);font-size:clamp(9px,1.12vh,11px);line-height:1.55;color:rgba(244,241,236,.56);
+  border-top:1px solid var(--line);padding-top:9px;margin-top:12px}
+.note b{color:var(--orange-br);font-weight:500}
+
+/* ---------- COVER ---------- */
+.slide.cover{justify-content:center;align-items:center;text-align:center;padding-bottom:74px;
+  background:radial-gradient(1000px 700px at 50% 38%, rgba(14,142,132,.26), transparent 64%),
+             radial-gradient(760px 520px at 14% 104%, rgba(225,86,15,.24), transparent 60%),
+             linear-gradient(168deg,var(--steel) 0%, var(--steel-3) 60%, var(--steel-4) 100%)}
+.cover .clogo{width:clamp(108px,17vh,178px);height:auto;margin-bottom:clamp(16px,2.6vh,30px);
+  filter:drop-shadow(0 0 12px rgba(255,255,255,1)) drop-shadow(0 0 30px rgba(255,255,255,.62)) drop-shadow(0 0 62px rgba(255,255,255,.30))}
+.cover .ceye{font-family:var(--mono);font-size:clamp(9.5px,1.28vh,13px);letter-spacing:.34em;text-transform:uppercase;color:var(--teal-br);margin-bottom:15px}
+.cover h1{font-size:clamp(30px,7.4vh,82px);font-weight:900;line-height:.96;letter-spacing:-.034em;max-width:20ch;text-wrap:balance}
+.cover h1 em{font-style:normal;color:var(--orange-br)}
+.cover .csub{margin-top:clamp(14px,2.2vh,26px);font-size:clamp(13px,2vh,21px);line-height:1.42;color:var(--paper-2);max-width:62ch;font-weight:400}
+.cover .crule{width:112px;height:3px;background:linear-gradient(90deg,var(--orange),var(--teal-br));margin:clamp(16px,2.6vh,30px) auto}
+.cover .cmeta{font-family:var(--mono);font-size:clamp(9px,1.16vh,11.5px);letter-spacing:.19em;text-transform:uppercase;color:rgba(244,241,236,.58);line-height:2}
+
+.slide.closer{justify-content:center;align-items:center;text-align:center}
+.closer h1{font-size:clamp(26px,5.8vh,62px);font-weight:900;line-height:1.02;letter-spacing:-.03em;max-width:22ch;text-wrap:balance}
+.closer h1 em{font-style:normal;color:var(--teal-br)}
+
+.hint{position:fixed;left:16px;bottom:56px;z-index:20;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;
+  color:rgba(244,241,236,.40);text-transform:uppercase;pointer-events:none}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:900px){
+  .g2,.g3,.g4,.g21,.g12{grid-template-columns:1fr}
+  .tb:not(.grow):not(.keep){display:none}
+  .slide{padding-left:16px;padding-right:16px}
+  .hint{display:none}
+}
+@media (max-width:560px){
+  .tb{padding:7px 10px}
+  .flow{flex-direction:column}
+}
+
+/* ---------- PRINT ---------- */
+@media print{
+  body,#deck{height:auto;overflow:visible}
+  .slide{display:flex!important;position:relative;inset:auto;page-break-after:always;height:100vh;
+    background:var(--steel-4)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #nav,#bar,#idx,.hint{display:none!important}
+  .body{overflow:visible}
+}
+</style>
+</head>
+<body>
+
+<div id="bar"></div>
+<div id="deck"></div>
+
+<div id="nav">
+  <button class="nbtn" id="bIdx" title="Slide index (I)">☰</button>
+  <button class="nbtn" id="bPrev" title="Previous (←)">◀</button>
+  <button class="nbtn" id="bNext" title="Next (→)">▶</button>
+  <button class="nbtn" id="bFs" title="Fullscreen (F)">⛶</button>
+</div>
+<div class="hint">← → navigate &nbsp;·&nbsp; I index &nbsp;·&nbsp; F fullscreen &nbsp;·&nbsp; P print</div>
+
+<div id="idx"><h2>Contents</h2><div class="igrid" id="igrid"></div></div>
+
+<script>
+const LOGO = "data:image/png;base64,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";
+const PROJECT = "FOS216-EO-001";
+const DATE = "SEP 2026";
+const REV = "REV 1";
+
+/* ============ SLIDE CONTENT ============ */
+const S = [
+/* 01 */ {cover:true, part:"COVER", title:"Emergency by Default", html:`
+  <img class="clogo" src="${LOGO}" alt="The FixOurStreets216 Project">
+  <div class="ceye">The FixOurStreets216 Project &nbsp;·&nbsp; Civic Accountability Series</div>
+  <h1>Emergency <em>by Default</em></h1>
+  <div class="csub">How Cleveland City Council's routine use of the emergency clause compresses the public's window to object &mdash; and the four things residents, taxpayers, and voters can do about it starting this week.</div>
+  <div class="crule"></div>
+  <div class="cmeta">
+    Cleveland, Ohio &nbsp;·&nbsp; ${PROJECT} &nbsp;·&nbsp; ${DATE}<br>
+    Prepared by The FixOurStreets216 Project &nbsp;·&nbsp; Neighborhoods First &nbsp;·&nbsp; #WeThePeople
+  </div>`},
+
+/* 02 */ {part:"HOW TO USE THIS", kicker:"Orientation", title:"What this deck is &mdash; and what it is not",
+  sub:"Four audiences, one set of facts. Use the parts you need.", html:`
+  <div class="grid g2">
+    <div class="card t">
+      <div class="eyebrow">This deck IS</div>
+      <ul class="bul t">
+        <li><strong>A civics explainer.</strong> How an ordinance becomes law in Cleveland, and where the public's leverage sits.</li>
+        <li><strong>A data brief.</strong> Cleveland's own published legislative record, counted.</li>
+        <li><strong>A legal update.</strong> Two 2026 developments changed the ground under this issue.</li>
+        <li><strong>An organizing playbook.</strong> Four tiers of action, with thresholds, deadlines, and draft language.</li>
+      </ul>
+    </div>
+    <div class="card o">
+      <div class="eyebrow o">This deck is NOT</div>
+      <ul class="bul">
+        <li><strong>Legal advice.</strong> Charter and election-law deadlines are unforgiving. Confirm every threshold with the Clerk of Council, the Cuyahoga County Board of Elections, and your own counsel before you circulate a petition.</li>
+        <li><strong>An accusation of illegality.</strong> The emergency clause is lawful. The question this deck raises is whether using it as the default is good government.</li>
+        <li><strong>Partisan.</strong> Every Cleveland administration and Council of the modern era has used this tool.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top:16px">
+    <div class="card"><div class="eyebrow">Part I</div><p style="color:var(--paper);font-weight:700">The Mechanics</p><p>How the shortcut works</p></div>
+    <div class="card"><div class="eyebrow">Part II</div><p style="color:var(--paper);font-weight:700">The Scale</p><p>What the record shows</p></div>
+    <div class="card"><div class="eyebrow">Part III</div><p style="color:var(--paper);font-weight:700">The Shift</p><p>2026 changed the rules</p></div>
+    <div class="card"><div class="eyebrow">Part IV</div><p style="color:var(--paper);font-weight:700">The Playbook</p><p>Watch · Demand · Challenge · Amend</p></div>
+  </div>`},
+
+/* 03 */ {part:"PART I — THE MECHANICS", kicker:"Part I · The Mechanics", title:"The regular path: how a law is <em>supposed</em> to be made",
+  sub:"Cleveland's standard legislative process is deliberately slow. The slowness is the feature &mdash; it is the public's window.", html:`
+  <div class="flow">
+    <div class="step"><div class="sn">STEP 01</div><div class="st">Drafted &amp; sponsored</div><div class="sd">By a Council member, the Mayor, or a department director. Council staff lawyers draft the text.</div></div>
+    <div class="step"><div class="sn">STEP 02</div><div class="st">First reading</div><div class="sd">Introduced at a Council meeting and referred to the appropriate committee and departments.</div></div>
+    <div class="step"><div class="sn">STEP 03</div><div class="st">Committee hearing</div><div class="sd">Public hearing. Amendments are proposed here. Residents may attend and speak.</div></div>
+    <div class="step"><div class="sn">STEP 04</div><div class="st">Second reading</div><div class="sd">Changes are heard publicly. After this reading, no further amendments are allowed.</div></div>
+    <div class="step"><div class="sn">STEP 05</div><div class="st">Third reading &amp; vote</div><div class="sd">Passes on a simple majority of Council.</div></div>
+    <div class="step o"><div class="sn">STEP 06</div><div class="st">30-day wait</div><div class="sd">The ordinance does not take effect for 30 days. <strong>This is the referendum window.</strong></div></div>
+  </div>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card t">
+      <div class="eyebrow">Why three readings exist</div>
+      <p>Three readings on three separate days force a bill into public view three times before it becomes binding. A resident who misses one meeting still has two more chances to learn what is coming, organize neighbors, and testify.</p>
+    </div>
+    <div class="card t">
+      <div class="eyebrow">Why the 30 days exist</div>
+      <p>The waiting period is not administrative padding. It is the only span of time in which citizens can file a referendum petition and force Council's decision onto the ballot. Shorten it and the petition right becomes theoretical.</p>
+    </div>
+  </div>
+  <div class="note"><b>SOURCE:</b> Cleveland City Council, "Legislative Process." Ordinances and resolutions are effective 30 days after passage unless declared an emergency measure by a two-thirds vote.</div>`},
+
+/* 04 */ {part:"PART I — THE MECHANICS", kicker:"Part I · The Mechanics", title:"The shortcut: <em>Charter Section 36</em>",
+  sub:"Cleveland's home-rule charter lets Council skip the waiting period whenever two-thirds of its members say the word “emergency.”", html:`
+  <div class="grid g21">
+    <div>
+      <blockquote class="q">An ordinance or resolution for the immediate preservation of the public peace, property, health, or safety, or providing for the usual daily operation of a Municipal department, in which the emergency is set forth and defined in a preamble&hellip;
+        <cite>Cleveland Charter § 36 — Emergency Measures</cite></blockquote>
+      <div class="card o" style="margin-top:16px">
+        <div class="eyebrow o">Read that second clause again</div>
+        <p><strong>&ldquo;&hellip;or providing for the usual daily operation of a Municipal department.&rdquo;</strong></p>
+        <p>That single phrase is the whole ballgame. A genuine crisis is one path to emergency status. <em>Routine departmental business</em> is the other &mdash; and it is the one that gets used. Paving contracts, equipment purchases, and code amendments all fit comfortably inside &ldquo;usual daily operation.&rdquo;</p>
+        <p>The charter never requires Council to prove urgency. It requires Council to <em>assert</em> it in a preamble.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="eyebrow">What § 36 requires</div>
+        <ul class="bul">
+          <li><strong>Two-thirds of elected members.</strong> In a 15-member Council, that is <strong>10 votes</strong>.</li>
+          <li><strong>A preamble</strong> setting forth and defining the emergency.</li>
+          <li>That is the entire test.</li>
+        </ul>
+      </div>
+      <div class="card good" style="margin-top:14px">
+        <div class="eyebrow">What § 36 forbids &mdash; permanently</div>
+        <p>Two categories can <strong>never</strong> be passed as emergency measures in Cleveland, no matter the vote count:</p>
+        <ul class="bul t" style="margin-top:8px">
+          <li>Granting, renewing, or extending a <strong>franchise</strong></li>
+          <li>Regulating the <strong>rate charged by any public utility</strong> for its service</li>
+        </ul>
+        <p style="margin-top:8px">If you see an emergency designation on either, that is a charter question worth raising immediately.</p>
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>NOTE:</b> § 36 language as published in the Cleveland Charter. Money appropriation ordinances may be passed as emergency measures. Verify current text with the Clerk of Council before relying on it.</div>`},
+
+/* 05 */ {part:"PART I — THE MECHANICS", kicker:"Part I · The Mechanics", title:"Side by side: regular vs. emergency",
+  sub:"The same ordinance, the same Council, the same room &mdash; two very different levels of public leverage.", html:`
+  <table class="tbl">
+    <thead><tr><th style="width:24%">Feature</th><th style="width:38%">Regular ordinance</th><th class="t" style="width:38%">Emergency ordinance</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Vote required</td><td>Simple majority (8 of 15)</td><td>Two-thirds of all elected members (10 of 15)</td></tr>
+      <tr><td class="k">Readings</td><td>Three, on three separate days &mdash; suspendable by two-thirds</td><td>Three, on three separate days &mdash; suspendable by two-thirds</td></tr>
+      <tr><td class="k">Must state a reason</td><td><span class="no">No</span></td><td><span class="yes">Yes</span> &mdash; emergency must be set forth and defined in a preamble</td></tr>
+      <tr><td class="k">Effective date</td><td>30 days after passage</td><td>Immediately on the Mayor's signature (or as stated in the ordinance)</td></tr>
+      <tr><td class="k">Is there a pre-effect pause?</td><td><span class="yes">Yes — 30 days</span></td><td><span class="no">No</span></td></tr>
+      <tr><td class="k">Referendum right</td><td><span class="yes">Yes</span> &mdash; petition within the 30-day window suspends the ordinance pending a vote</td><td><span class="yes">Usually yes in Cleveland</span>, but the ordinance stays in force while you gather. See Slide 07.</td></tr>
+      <tr><td class="k">Typical use</td><td>Routine, non-urgent legislation</td><td>Contracts, capital projects, appropriations, code amendments</td></tr>
+    </tbody>
+  </table>
+  <div class="card warn" style="margin-top:16px">
+    <div class="eyebrow o">The practical difference in one sentence</div>
+    <p>On a regular ordinance, the public gets <strong>30 days of leverage before anything happens</strong>. On an emergency ordinance, the contract is signed, the money moves, and the code changes <strong>before the first signature is collected</strong> &mdash; so even a successful referendum arrives after the facts on the ground are already set.</p>
+  </div>`},
+
+/* 06 */ {part:"PART I — THE MECHANICS", kicker:"Part I · The Mechanics", title:"The second shortcut: <em>suspending the readings</em>",
+  sub:"The emergency clause and the readings suspension are separate tools. Used together, a bill can be introduced and binding on the same afternoon.", html:`
+  <div class="grid g2">
+    <div class="card o">
+      <div class="eyebrow o">Tool 1 — Suspension of the three-reading rule</div>
+      <p>A two-thirds vote lets Council read a bill once instead of three times. That removes the two public meetings where residents would otherwise have learned the bill existed.</p>
+      <p>It also removes the committee window where amendments are normally negotiated in public.</p>
+    </div>
+    <div class="card o">
+      <div class="eyebrow o">Tool 2 — Emergency designation</div>
+      <p>A two-thirds vote makes the ordinance effective immediately instead of in 30 days. That removes the pre-effect pause.</p>
+      <p>Both tools clear the same 10-vote bar. A Council willing to do one is almost always willing to do both.</p>
+    </div>
+  </div>
+  <div class="card warn" style="margin-top:16px">
+    <div class="eyebrow o">Stacked, the two tools collapse the timeline from weeks to hours</div>
+    <div class="flow" style="margin-top:12px">
+      <div class="step o"><div class="sn">2:00 PM</div><div class="st">Bill introduced</div><div class="sd">First appears on the agenda</div></div>
+      <div class="step o"><div class="sn">2:06 PM</div><div class="st">Readings suspended</div><div class="sd">Two-thirds vote</div></div>
+      <div class="step o"><div class="sn">2:11 PM</div><div class="st">Passed as emergency</div><div class="sd">Two-thirds vote</div></div>
+      <div class="step o"><div class="sn">SAME WEEK</div><div class="st">Mayor signs</div><div class="sd">Law in force</div></div>
+      <div class="step"><div class="sn">PUBLIC</div><div class="st">Finds out</div><div class="sd">After the fact</div></div>
+    </div>
+  </div>
+  <div class="note"><b>NOTE:</b> A resident who reads the published agenda the morning of the meeting has, in this scenario, a few hours of notice on a law that is permanent.</div>`},
+
+/* 07 */ {part:"PART I — THE MECHANICS", kicker:"Part I · The Mechanics", title:"The fact almost nobody knows: <em>Charter Section 64</em>",
+  sub:"Cleveland's charter is more generous to voters than state law. Most emergency measures here remain subject to referendum.", html:`
+  <blockquote class="q">Ordinances passed as emergency measures for the immediate preservation of the public peace, property, health, or safety and providing for the refinancing of bonds, notes or other securities of the City shall not be subject to referendum. <strong>Otherwise, emergency measures shall be subject to referendum in like manner as other ordinances, except that they shall go into effect at the time indicated in the ordinances.</strong>
+    <cite>Cleveland Charter § 64 — Referendum on Emergency Measures (effective Nov. 4, 2008)</cite></blockquote>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card good"><div class="eyebrow">What this means</div><p>In Cleveland, an emergency designation buys Council <strong>speed</strong> &mdash; it does not, on its face, buy immunity from the voters. The exemption in the first sentence is written narrowly.</p></div>
+    <div class="card good"><div class="eyebrow">What you still lose</div><p>The ordinance <strong>takes effect and stays in effect</strong> while you circulate. Unlike a regular ordinance, it is not suspended by the filing of a petition. You are undoing a live law, not pausing a pending one.</p></div>
+    <div class="card"><div class="eyebrow o">If voters reject it</div><p>§ 64 provides the measure is <strong>considered repealed as regards any further action</strong> &mdash; but money already spent under it stays spent. Speed still wins the ground.</p></div>
+  </div>
+  <div class="card warn" style="margin-top:16px">
+    <div class="eyebrow o">Action item for counsel</div>
+    <p>The first sentence of § 64 joins two conditions with <strong>&ldquo;and&rdquo;</strong>: measures for immediate preservation of peace/property/health/safety <em>and</em> providing for refinancing of City securities. Read conjunctively, the referendum exemption reaches only bond-refinancing emergencies &mdash; a very small slice of Council's emergency output. Get a written opinion on this reading from the Clerk of Council and from an election-law attorney <strong>before</strong> you assume any given emergency ordinance is beyond reach.</p>
+  </div>`},
+
+/* 08 */ {part:"PART I — THE MECHANICS", kicker:"Part I · The Mechanics", title:"What state law says &mdash; and why it matters less here",
+  sub:"Ohio Revised Code § 731.30 is the rule for non-charter municipalities. Cleveland is a home-rule charter city, so the charter controls.", html:`
+  <div class="grid g2">
+    <div class="card o">
+      <div class="eyebrow o">ORC § 731.30 — the state default</div>
+      <ul class="bul">
+        <li>Emergency ordinances must be <strong>necessary for the immediate preservation of the public peace, health, or safety</strong>.</li>
+        <li>The <strong>reasons must be stated in one section</strong> of the measure.</li>
+        <li>A <strong>two-thirds vote</strong> of all members elected is required.</li>
+        <li>Such measures <strong>go into immediate effect</strong>, outside the ordinary referendum procedure.</li>
+      </ul>
+      <p style="margin-top:9px">Notice what the statute does <em>not</em> contain: the &ldquo;usual daily operation of a municipal department&rdquo; language. That phrase is Cleveland's own charter addition.</p>
+    </div>
+    <div class="card t">
+      <div class="eyebrow">Why Cleveland is different</div>
+      <p>Under <strong>Ohio Constitution, Article XVIII</strong>, a charter city writes its own rules of local self-government. Cleveland's charter is therefore the operative law on emergency measures, readings, and referendum.</p>
+      <p>That cuts both ways:</p>
+      <ul class="bul t" style="margin-top:8px">
+        <li><strong>Against residents:</strong> § 36's &ldquo;usual daily operation&rdquo; clause is broader than the state standard.</li>
+        <li><strong>For residents:</strong> § 64 preserves referendum on emergency measures far more generously than ORC § 731.30 does.</li>
+        <li><strong>For residents:</strong> the charter itself can be amended by the voters. State law cannot.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><b>TAKEAWAY:</b> Any argument you make &mdash; in testimony, in the press, or in court &mdash; should cite the <b>Cleveland Charter first</b> and the Revised Code second. Advice written for Ohio cities generally will understate the rights Clevelanders actually hold.</div>`},
+
+/* 09 */ {part:"PART II — THE SCALE", kicker:"Part II · The Scale", title:"The numbers",
+  sub:"Cleveland Documenters analyzed The City Record for every ordinance passed between January 2020 and May 2021. This is what the legislative record shows.", html:`
+  <div class="grid g3">
+    <div class="stat"><div class="big">97%</div><div class="lab">of ordinances passed<br>were declared<br>emergency measures</div></div>
+    <div class="stat"><div class="big">99.5%</div><div class="lab">of the time, Council<br>suspended the<br>three-reading rule</div></div>
+    <div class="stat"><div class="big">26%</div><div class="lab">of all legislation passed<br>the same day<br>it was introduced</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card o">
+      <div class="eyebrow o">What 97% tells you</div>
+      <p>A tool built for the exceptional case is being applied to essentially the entire body of municipal law. When the exception covers 97 percent of the output, the exception <em>is</em> the process &mdash; and the process described on the Council's own website is the exception.</p>
+    </div>
+    <div class="card o">
+      <div class="eyebrow o">What 99.5% tells you</div>
+      <p>The three-reading rule is the mechanism that gives residents advance notice. Suspended in 199 cases out of every 200, notice is not a right in practice. It is a courtesy extended when nobody objects.</p>
+    </div>
+  </div>
+  <div class="note"><b>SOURCE:</b> Cleveland Documenters analysis of The City Record, reported by The Land, "The pace of passage: How quickly city council makes laws and what that means for Clevelanders." Figures cover Jan. 2020 &ndash; May 2021. <b>Recommended next step:</b> replicate this count for 2024&ndash;2026 from Legistar and publish it.</div>`},
+
+/* 10 */ {part:"PART II — THE SCALE", kicker:"Part II · The Scale", title:"Where the money moves fastest",
+  sub:"Same-day passage is not spread evenly. It concentrates where dollars are allocated.", html:`
+  <div class="grid g12">
+    <div>
+      <div class="stat tl"><div class="big">$9.7M</div><div class="lab">annual casino revenue funds &mdash; more than half of all same-day-passage legislation in the study period</div></div>
+    </div>
+    <div>
+      <div class="card t">
+        <div class="eyebrow">Why this matters more than it sounds</div>
+        <p>Casino revenue is discretionary money. Unlike a bond payment or a state-mandated transfer, someone chooses where it goes &mdash; which ward, which program, which vendor.</p>
+        <p>Discretionary spending is precisely the category where public review has the most to offer and where the absence of review is most costly. When over half of same-day legislation is discretionary allocation, the public is being locked out of the decisions it has the clearest stake in.</p>
+      </div>
+    </div>
+  </div>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card"><div class="eyebrow o">Typical emergency subject matter</div><ul class="bul"><li>Roadway and bridge improvement contracts</li><li>Vehicle impound and towing code amendments</li><li>Sidewalk and right-of-way code restructuring</li></ul></div>
+    <div class="card"><div class="eyebrow o">Also routinely emergency</div><ul class="bul"><li>Pedestrian and bicycle infrastructure</li><li>Purchasing and professional services contracts</li><li>Departmental appropriations and transfers</li></ul></div>
+    <div class="card warn"><div class="eyebrow o">Ask yourself</div><p>Which of these is an emergency in the sense an ordinary Clevelander would use the word? Each may be <em>urgent</em> to a department's calendar. That is not the same thing as a threat to public safety.</p></div>
+  </div>`},
+
+/* 11 */ {part:"PART II — THE SCALE", kicker:"Part II · The Scale", title:"Council's case for doing it this way",
+  sub:"State it fairly. An argument you cannot summarize honestly is one you cannot beat.", html:`
+  <blockquote class="q">The clerk's office, if there's no objection, then they're going to take the efficient route to move the legislation along and tag it with emergency.
+    <cite>Council Member Blaine Griffin, quoted in The Land</cite></blockquote>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card t"><div class="eyebrow">Argument 1 — Construction seasons are short</div><p>Northeast Ohio has a narrow paving and building window. A 30-day delay in the spring can push a project a full year and raise its cost.</p></div>
+    <div class="card t"><div class="eyebrow">Argument 2 — Grant and contract deadlines are real</div><p>State and federal awards carry obligation deadlines. Missing one can forfeit the money entirely.</p></div>
+    <div class="card t"><div class="eyebrow">Argument 3 — Operations cannot stop</div><p>Payroll, fuel, salt, equipment, and service contracts have to be authorized continuously. A city that waited 30 days on every one of them would not function.</p></div>
+  </div>
+  <div class="card warn" style="margin-top:16px">
+    <div class="eyebrow o">The honest response</div>
+    <p>All three arguments are sound &mdash; <strong>for the ordinances they actually describe</strong>. None of them justifies a blanket 97 percent. The reform this deck argues for is not abolishing the emergency clause. It is <strong>separating the ordinances that genuinely need speed from the ones that are simply easier to pass without scrutiny</strong>, and making Council say on the record which is which.</p>
+    <p>Note the mechanism in the quote above: the tag goes on <strong>&ldquo;if there's no objection.&rdquo;</strong> That is the opening. Objection is free, and it is available to any member and any resident at the podium.</p>
+  </div>`},
+
+/* 12 */ {part:"PART II — THE SCALE", kicker:"Part II · The Scale", title:"What the public actually loses",
+  sub:"Not abstractions. Six concrete, enumerable capabilities.", html:`
+  <div class="grid g2">
+    <div>
+      <ol class="num">
+        <li><strong>Advance notice</strong>Three readings across three meetings become one. Residents learn about a law after it binds them.</li>
+        <li><strong>The organizing window</strong>Thirty days is roughly what a volunteer coalition needs to read a bill, brief a block club, and decide whether to act. Zero days is not a window.</li>
+        <li><strong>The suspensive effect</strong>On a regular ordinance, filing a petition freezes the law. On an emergency ordinance, the law runs while you gather signatures.</li>
+      </ol>
+    </div>
+    <div>
+      <ol class="num" start="4" style="counter-reset:s 3">
+        <li><strong>Amendment leverage</strong>Most citizen influence is not a veto &mdash; it is a change negotiated in committee. Suspended readings eliminate the committee window where that happens.</li>
+        <li><strong>Comparison shopping</strong>Thirty days lets a resident pull the contract, check the vendor, and compare the price. Same-day passage means the audit happens, if at all, after the check clears.</li>
+        <li><strong>A real threat</strong>The referendum's power is mostly deterrent. A Council that knows a bad deal can be put to the voters negotiates differently. Remove the credible threat and you remove the pressure that produces better deals in the first place.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="card warn" style="margin-top:14px">
+    <div class="eyebrow o">The compounding effect</div>
+    <p>Each of these alone is survivable. Together and applied to 97 percent of legislation, they add up to a city government that is fully legal, fully elected, and functionally unreviewable between elections. Voters still choose who sits on Council. They no longer get a say on what Council does while seated.</p>
+  </div>`},
+
+/* 13 */ {part:"PART II — THE SCALE", kicker:"Part II · The Scale", title:"How other cities handle the same problem",
+  sub:"Cleveland's practice is a choice, not a necessity. Peer cities run on shorter clocks without emergency clauses.", html:`
+  <table class="tbl">
+    <thead><tr><th style="width:18%">City</th><th style="width:30%">Minimum time from introduction to final action</th><th style="width:26%">Emergency clause used?</th><th style="width:26%">What Cleveland could learn</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Pittsburgh, PA</td><td>At least <strong>seven days</strong> between introduction and final action</td><td><span class="yes">No &mdash; does not use emergency ordinances</span></td><td>A hard minimum floor is workable in a major city. Seven days is enough to publish, notice, and hear.</td></tr>
+      <tr><td class="k">Akron, OH</td><td>Three-reading requirement comparable to Cleveland's</td><td>Yes, under Ohio practice</td><td>Same legal toolkit &mdash; the question is the rate of use, which is a matter of Council rules and culture.</td></tr>
+      <tr><td class="k">Cleveland, OH</td><td><strong>None in practice</strong> &mdash; roughly a quarter of legislation passes the day it is introduced</td><td>Yes &mdash; roughly 97% of ordinances in the study period</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card good">
+      <div class="eyebrow">The Pittsburgh point is the strongest one you have</div>
+      <p>Pittsburgh is a comparably sized, comparably old, comparably constrained industrial city with the same short construction season, the same grant deadlines, and the same procurement cycles. It manages without emergency ordinances and with a seven-day floor.</p>
+      <p>That makes the efficiency argument answerable: <strong>a peer city does the same work under a stricter clock</strong>. The burden shifts to explaining why Cleveland cannot.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow o">How to use this slide</div>
+      <ul class="bul"><li>In testimony: ask Council to respond to Pittsburgh specifically.</li>
+      <li>With reporters: this is the comparison that makes the story concrete.</li>
+      <li>In a charter campaign: a seven-day floor is a modest, precedented ask that is hard to call radical.</li></ul>
+    </div>
+  </div>
+  <div class="note"><b>SOURCE:</b> Comparative practice as reported by The Land. Confirm current Pittsburgh and Akron council rules directly before citing in formal testimony.</div>`},
+
+/* 14 */ {part:"PART III — THE SHIFT", kicker:"Part III · The Shift", title:"2026 changed the ground under this issue",
+  sub:"Two developments &mdash; one local, one from the Ohio Supreme Court &mdash; make this the strongest moment in years to press the question.", html:`
+  <div class="grid g2">
+    <div class="card good">
+      <div class="eyebrow">Development 1 — Local proof of concept</div>
+      <p style="color:var(--paper);font-weight:700;font-size:1.08em">Cleveland's Flock referendum</p>
+      <p>An emergency designation failed by a single vote, the 30-day window opened, and residents moved on it. The referendum right is not theoretical in Cleveland. It was exercised this year.</p>
+      <div style="margin-top:10px"><span class="chip t">July 17, 2026</span><span class="chip t">Ordinance 683-2026</span><span class="chip t">9&ndash;6 vote</span></div>
+    </div>
+    <div class="card good">
+      <div class="eyebrow">Development 2 — Statewide legal standard</div>
+      <p style="color:var(--paper);font-weight:700;font-size:1.08em">State ex rel. McNamara-Smith v. Grube</p>
+      <p>The Ohio Supreme Court held that a boilerplate emergency preamble is not good enough to defeat a referendum petition. Councils now have to actually explain the emergency.</p>
+      <div style="margin-top:10px"><span class="chip t">Aug. 7, 2026</span><span class="chip t">2026-Ohio-3035</span><span class="chip t">Unanimous outcome for petitioners</span></div>
+    </div>
+  </div>
+  <div class="card warn" style="margin-top:16px">
+    <div class="eyebrow o">Why the timing matters</div>
+    <p>Reform arguments succeed when they arrive with proof that the current system has already failed in a way people can point at. Cleveland now has a local example the whole city watched, and a statewide ruling that gives the argument legal teeth. <strong>Both landed within four weeks of each other.</strong></p>
+  </div>`},
+
+/* 15 */ {part:"PART III — THE SHIFT", kicker:"Part III · Case Study", title:"Case study: the Flock referendum",
+  sub:"What happens when the emergency clause fails by one vote.", html:`
+  <div class="flow">
+    <div class="step"><div class="sn">JULY 17, 2026</div><div class="st">Council votes 9&ndash;6</div><div class="sd">To extend the city's Flock surveillance camera contract six months via Ordinance 683-2026.</div></div>
+    <div class="step o"><div class="sn">THE MARGIN</div><div class="st">One vote short</div><div class="sd">Emergency status needed 10 of 15. Nine is a majority &mdash; enough to pass, not enough to shield.</div></div>
+    <div class="step"><div class="sn">RESULT</div><div class="st">30-day window opens</div><div class="sd">Charter § 59 applies: the ordinance cannot take effect for 30 days.</div></div>
+    <div class="step"><div class="sn">THRESHOLD</div><div class="st">~4,400 signatures</div><div class="sd">10% of the 43,358 votes cast in the 2025 municipal election. Organizers targeted 4,500+ for cushion.</div></div>
+    <div class="step"><div class="sn">EFFECT</div><div class="st">Filing suspends it</div><div class="sd">A sufficient petition stops the ordinance from becoming operative pending the vote.</div></div>
+  </div>
+  <blockquote class="q" style="margin-top:18px">If at any time within said thirty (30) days, a petition&hellip;be filed with the Clerk of the Council requesting that the ordinance&hellip;be repealed or submitted to a vote of the electors, it shall not become operative.
+    <cite>Cleveland Charter § 59, as quoted in reporting on the Flock referendum</cite></blockquote>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card good"><div class="eyebrow">Lesson 1</div><p><strong>Six votes is a win.</strong> Residents do not need a Council majority to preserve their own rights. They need <strong>six members willing to withhold the emergency</strong> &mdash; a far more achievable organizing target than eight.</p></div>
+    <div class="card good"><div class="eyebrow">Lesson 2</div><p><strong>The signature math is knowable in advance.</strong> Ten percent of the last municipal election turnout is a number you can compute today and plan around before a bill is ever introduced.</p></div>
+    <div class="card good"><div class="eyebrow">Lesson 3</div><p><strong>The right works when the window exists.</strong> Every argument in this deck reduces to protecting that window. Flock is the proof.</p></div>
+  </div>
+  <div class="note"><b>NOTE:</b> Signature thresholds and filing deadlines must be confirmed with the Clerk of Council and the Cuyahoga County Board of Elections for the specific ordinance and election cycle at issue. Figures above are as reported.</div>`},
+
+/* 16 */ {part:"PART III — THE SHIFT", kicker:"Part III · The Shift", title:"The landmark: <em>McNamara-Smith v. Grube</em>",
+  sub:"Ohio Supreme Court, August 7, 2026. The emergency clause is no longer a magic word.", html:`
+  <div class="grid g21">
+    <div>
+      <div class="card t">
+        <div class="eyebrow">The facts</div>
+        <p>The village of Ashville adopted Resolution 06-2026 approving a development agreement with EdgeConneX for two data centers and a natural gas power plant. Residents gathered enough signatures for a referendum. <strong>The fiscal officer refused to submit the petition</strong>, claiming the emergency designation exempted the resolution from referendum.</p>
+      </div>
+      <div class="card good" style="margin-top:14px">
+        <div class="eyebrow">The holding</div>
+        <ul class="bul t">
+          <li>Reciting the statutory words &mdash; <em>&ldquo;public peace, health, or safety&rdquo;</em> &mdash; is <strong>not sufficient</strong>. In the Court's phrase, <strong>&ldquo;parroting R.C. 731.30&hellip;is not enough.&rdquo;</strong></li>
+          <li>The measure must give <strong>specific reasons</strong> why emergency status was necessary.</li>
+          <li>The emergency clause was invalid because it offered only <strong>conclusory statements</strong> and never explained why a 30-day delay would harm the project.</li>
+          <li><strong>After-the-fact justifications do not count.</strong> The reasoning has to be in the measure.</li>
+          <li>Whether an action is legislative or administrative is <strong>a judicial question</strong> &mdash; not one a municipal officer gets to decide by refusing to certify a petition.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card warn">
+        <div class="eyebrow o">Why this is the most useful slide in the deck</div>
+        <p>Before <em>Grube</em>, a resident challenging an emergency designation was arguing about good government. After <em>Grube</em>, that resident is arguing about <strong>a legal defect in the ordinance</strong>.</p>
+        <p>That changes who has to answer. A Council can decline to debate whether a practice is democratic. It cannot as easily decline to explain why its preamble satisfies a standard the Ohio Supreme Court announced last month.</p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="eyebrow o">Already rippling</div>
+        <p>In Circleville, the local group Teays Valley Against Overgrowth began auditing council ordinances for the phrase &ldquo;declaring an emergency&rdquo; immediately after the ruling &mdash; including a tax credit for Health Care Logistics and a pending 1,200-home annexation.</p>
+        <p>That audit is a template. It is Tier 1 of the playbook that follows.</p>
+      </div>
+    </div>
+  </div>`},
+
+/* 17 */ {part:"PART III — THE SHIFT", kicker:"Part III · The Shift", title:"The new test for a valid emergency preamble",
+  sub:"Read every emergency preamble against these five questions. If it fails, say so on the record.", html:`
+  <div class="grid g2">
+    <div class="card good">
+      <div class="eyebrow">A preamble that likely SURVIVES review</div>
+      <div class="code">WHEREAS, the City's ODOT LPA agreement for the
+E. 55th Street resurfacing requires the City to
+encumber local match funds <b>on or before
+October 15, 2026</b>, and the next available regular
+effective date falls <b>eleven days after</b> that
+deadline; and
+
+WHEREAS, failure to encumber by that date
+<b>forfeits $2.4 million</b> in obligated federal
+funds and returns the project to the FY2029
+application cycle; now, therefore&hellip;</div>
+      <p style="margin-top:10px">Names a <strong>date</strong>. Names a <strong>consequence</strong>. Shows the <strong>arithmetic</strong> of why 30 days does not work. This is a real emergency, explained.</p>
+    </div>
+    <div class="card warn">
+      <div class="eyebrow o">A preamble that likely FAILS under <em>Grube</em></div>
+      <div class="code" style="border-left-color:var(--orange)">WHEREAS, this ordinance constitutes an
+emergency measure providing for the usual
+daily operation of a municipal department;
+now, therefore&hellip;</div>
+      <p style="margin-top:10px">Names no date, no deadline, no consequence, and no reason a 30-day wait would cause harm. It recites a category. Under <em>Grube</em>, reciting the category is precisely what is <strong>not enough</strong>.</p>
+      <p style="margin-top:9px"><strong>If most of Cleveland's emergency preambles look like the box above, that is a finding worth publishing.</strong></p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="eyebrow o">The five-question preamble test</div>
+    <div class="grid g4" style="margin-top:10px">
+      <div class="card t"><p><strong>1.</strong> Does it name a <strong>specific date or deadline</strong>?</p></div>
+      <div class="card t"><p><strong>2.</strong> Does it name a <strong>specific harm</strong> from waiting 30 days?</p></div>
+      <div class="card t"><p><strong>3.</strong> Is the harm <strong>quantified</strong> &mdash; dollars, a season, a forfeited award?</p></div>
+      <div class="card t"><p><strong>4.</strong> Is the reasoning <strong>inside the ordinance</strong>, not offered later?</p></div>
+    </div>
+    <div class="card t" style="margin-top:10px"><p><strong>5.</strong> Would that reasoning persuade a judge who has never heard of the project &mdash; or does it only work if you already trust the department? <em>A preamble that fails questions 1 through 4 fails question 5 automatically.</em></p></div>
+  </div>`},
+
+/* 18 */ {part:"PART IV — THE PLAYBOOK", kicker:"Part IV · The Playbook", title:"Four tiers of citizen power",
+  sub:"Escalating by cost and difficulty. Almost everyone should start at Tier 1. Almost nobody should start at Tier 4.", html:`
+  <div class="grid g4">
+    <div class="card t"><div class="eyebrow">Tier 1</div><h3>WATCH</h3><p>Know what is coming before it passes. Free, legal, and requires no permission from anyone.</p><div style="margin-top:9px"><span class="chip t">Cost: hours/week</span><span class="chip t">People: 1&ndash;5</span></div></div>
+    <div class="card t"><div class="eyebrow">Tier 2</div><h3>DEMAND</h3><p>Make Council justify each emergency on the record, in public, before the vote.</p><div style="margin-top:9px"><span class="chip t">Cost: low</span><span class="chip t">People: 5&ndash;25</span></div></div>
+    <div class="card o"><div class="eyebrow o">Tier 3</div><h3>CHALLENGE</h3><p>Use the referendum right, or challenge a defective emergency clause under <em>Grube</em>.</p><div style="margin-top:9px"><span class="chip o">Cost: high</span><span class="chip o">People: 100+</span></div></div>
+    <div class="card o"><div class="eyebrow o">Tier 4</div><h3>AMEND</h3><p>Change the rules themselves &mdash; Council rules first, the charter if necessary.</p><div style="margin-top:9px"><span class="chip o">Cost: highest</span><span class="chip o">People: 500+</span></div></div>
+  </div>
+  <div class="card warn" style="margin-top:18px">
+    <div class="eyebrow o">The strategic logic</div>
+    <p>Tiers 1 and 2 are not a warm-up for the real work &mdash; they <em>are</em> a large share of the available leverage. Recall the mechanism Council described: the emergency tag goes on <strong>&ldquo;if there's no objection.&rdquo;</strong> A standing, visible, well-informed objection changes the default at almost no cost.</p>
+    <p>Tiers 3 and 4 are what you hold in reserve. Their value is mostly in being <strong>credible</strong>. A city that knows residents can and will gather 4,400 signatures behaves differently than one that does not &mdash; whether or not the petition is ever filed.</p>
+  </div>`},
+
+/* 19 */ {part:"PART IV — THE PLAYBOOK", kicker:"Tier 1 · Watch", title:"Tier 1 &mdash; <em>Watch:</em> build the early-warning system",
+  sub:"You cannot object to what you did not see. Everything here is public and free.", html:`
+  <div class="grid g2">
+    <div>
+      <ol class="num">
+        <li><strong>Set up a Legistar routine</strong>Cleveland publishes every ordinance, its sponsors, its committee, its status, and its full text on the city's Legistar portal. Check it the day agendas post &mdash; not the day of the meeting.</li>
+        <li><strong>Read The City Record weekly</strong>The official journal of Council proceedings. It is the primary source for any count you publish, and it is what makes your numbers unarguable.</li>
+        <li><strong>Follow Cleveland Documenters and Signal Cleveland</strong>Trained residents already attend and take notes on these meetings. Do not duplicate that labor &mdash; build on it and cite it.</li>
+        <li><strong>Keep a running emergency log</strong>One spreadsheet row per ordinance: file number, date, subject, sponsor, dollar amount, readings suspended Y/N, emergency Y/N, preamble text. After ninety days you will have something no press release can rebut.</li>
+      </ol>
+    </div>
+    <div>
+      <div class="card t">
+        <div class="eyebrow">The 7-question agenda triage</div>
+        <p>For each emergency item, answer these before the meeting. Most take under five minutes.</p>
+        <ul class="bul t" style="margin-top:10px">
+          <li><strong>What does it actually do?</strong> Contract, code change, appropriation, land, or policy?</li>
+          <li><strong>Who benefits?</strong> Name the vendor, developer, or department.</li>
+          <li><strong>How much?</strong> Dollar figure and funding source.</li>
+          <li><strong>Whose ward?</strong> Is your council member a sponsor?</li>
+          <li><strong>Does the preamble pass the five-question test?</strong> (Slide 17)</li>
+          <li><strong>Is it a franchise or a utility rate?</strong> If so, it cannot lawfully be an emergency under § 36 &mdash; escalate immediately.</li>
+          <li><strong>Would a 30-day delay actually hurt anyone?</strong> If you cannot articulate the harm, neither can they.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>TIP:</b> One person doing this consistently for one committee is worth more than twenty people doing it once. Assign committees, not meetings.</div>`},
+
+/* 20 */ {part:"PART IV — THE PLAYBOOK", kicker:"Tier 2 · Demand", title:"Tier 2 &mdash; <em>Demand:</em> force the justification on the record",
+  sub:"The goal is not to win every vote. It is to make the emergency designation cost something.", html:`
+  <div class="grid g2">
+    <div class="card t">
+      <div class="eyebrow">At the podium — public comment</div>
+      <p>Cleveland Council takes public comment early in its meetings. Use the slot surgically. A script that works:</p>
+      <div class="code" style="margin-top:10px">&ldquo;I'm here on Ordinance <b>___</b>. I'm not asking
+you to vote it down. I'm asking you to pass it
+<b>without the emergency clause</b>.
+
+The preamble says this is for the usual daily
+operation of a department. It doesn't say what
+happens if it takes effect in 30 days instead of
+today. In <b>McNamara-Smith v. Grube</b>, decided
+August 7th, the Ohio Supreme Court held that
+parroting the statute isn't enough.
+
+If there is a real deadline, put it in the
+preamble and I'll support the emergency. If
+there isn't one, let the 30 days run.&rdquo;</div>
+    </div>
+    <div>
+      <div class="card t">
+        <div class="eyebrow">With your council member</div>
+        <ul class="bul t">
+          <li><strong>Ask for the six.</strong> Emergency status needs 10 of 15. Six members declining is enough to preserve the public's window &mdash; without defeating the underlying bill.</li>
+          <li><strong>Frame it as leverage, not opposition.</strong> A member can support a project and still decline to shield it. That is a defensible position to take home to a ward.</li>
+          <li><strong>Ask in writing, and publish the answer.</strong> &ldquo;Will you commit to withholding the emergency clause on any ordinance whose preamble does not state a specific deadline?&rdquo;</li>
+        </ul>
+      </div>
+      <div class="card good" style="margin-top:14px">
+        <div class="eyebrow">The sponsor scorecard</div>
+        <p>Publish a simple monthly tally by member: emergency votes cast, readings suspensions supported, and objections raised. Councils respond to being counted. The scorecard is the single cheapest instrument of accountability available to residents.</p>
+      </div>
+    </div>
+  </div>`},
+
+/* 21 */ {part:"PART IV — THE PLAYBOOK", kicker:"Tier 3 · Challenge", title:"Tier 3A &mdash; <em>Challenge:</em> the referendum path",
+  sub:"The nuclear option, mapped. Know the clock before you need it.", html:`
+  <div class="flow">
+    <div class="step"><div class="sn">DAY 0</div><div class="st">Council passes</div><div class="sd">Clock starts on the date of passage. Confirm the exact date with the Clerk.</div></div>
+    <div class="step"><div class="sn">DAY 0&ndash;2</div><div class="st">Draft the petition</div><div class="sd">Form, ordinance text, circulator statement. Election-law counsel is not optional here.</div></div>
+    <div class="step"><div class="sn">DAY 2&ndash;26</div><div class="st">Circulate</div><div class="sd">Registered Cleveland electors only. Target 150% of the threshold.</div></div>
+    <div class="step"><div class="sn">DAY 26&ndash;28</div><div class="st">Verify internally</div><div class="sd">Check registrations against the Board of Elections file before filing, not after.</div></div>
+    <div class="step o"><div class="sn">BY DAY 30</div><div class="st">File with the Clerk</div><div class="sd">File with the Clerk of Council. Late by one day is fatal.</div></div>
+    <div class="step"><div class="sn">THEN</div><div class="st">Ballot</div><div class="sd">Certified to the Board of Elections for the next eligible election.</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="card o">
+      <div class="eyebrow o">The signature math</div>
+      <p>Threshold is <strong>10% of the votes cast at the last regular municipal election</strong>.</p>
+      <p>Worked example from 2026: 43,358 votes cast in 2025 &rarr; roughly <strong>4,400 valid signatures</strong>. Organizers were advised to collect <strong>4,500+</strong> to absorb invalidations. Plan on 6,000&ndash;6,600 raw.</p>
+    </div>
+    <div class="card o">
+      <div class="eyebrow o">The emergency wrinkle</div>
+      <p>On a <strong>regular</strong> ordinance, filing suspends the law pending the vote.</p>
+      <p>On an <strong>emergency</strong> measure under § 64, the law is already in effect and <strong>stays in effect</strong> while you circulate. You are repealing, not pausing. Budget for that difference politically.</p>
+    </div>
+    <div class="card warn">
+      <div class="eyebrow o">Where petitions die</div>
+      <ul class="bul"><li>Signers who are not registered at the address given</li><li>Circulator statement defects</li><li>Part-petitions filed separately or late</li><li>Wrong summary or ordinance text attached</li><li>Filing one day past the window</li></ul>
+      <p style="margin-top:8px"><strong>Almost every failed Ohio referendum fails on form, not on support.</strong></p>
+    </div>
+  </div>
+  <div class="note"><b>CRITICAL:</b> Confirm the threshold, the base election, the filing officer, and the deadline with the Clerk of Council and the Cuyahoga County Board of Elections <b>before</b> you print a single part-petition. Figures here are illustrative, drawn from 2026 reporting.</div>`},
+
+/* 22 */ {part:"PART IV — THE PLAYBOOK", kicker:"Tier 3 · Challenge", title:"Tier 3B &mdash; <em>Challenge:</em> attack the emergency clause itself",
+  sub:"After <em>Grube</em>, a defective preamble is a legal vulnerability &mdash; and the remedy is that the referendum right survives.", html:`
+  <div class="grid g2">
+    <div>
+      <ol class="num">
+        <li><strong>Preserve the record before the vote</strong>Testify. State on the record that the preamble states no specific deadline or harm, and cite <em>McNamara-Smith v. Grube</em> by name and date. A contemporaneous objection is far stronger than one raised months later.</li>
+        <li><strong>Put the request in writing</strong>Email the sponsor, the committee chair, and the Clerk asking what specific harm a 30-day delay would cause. Keep the reply &mdash; or the absence of one.</li>
+        <li><strong>File the petition anyway</strong>If the Clerk or another officer refuses to accept or certify it on emergency grounds, that refusal is the thing <em>Grube</em> addresses: whether the measure is subject to referendum is <strong>a judicial question</strong>, not an administrative one.</li>
+        <li><strong>Seek a writ</strong>Ohio referendum disputes move through mandamus actions on an expedited election calendar. This is attorney work &mdash; retain counsel early, not after a refusal.</li>
+      </ol>
+    </div>
+    <div>
+      <div class="card good">
+        <div class="eyebrow">What <em>Grube</em> gives you</div>
+        <ul class="bul t">
+          <li>Boilerplate preambles are <strong>reviewable</strong>.</li>
+          <li>The city <strong>cannot backfill</strong> justification after the fact.</li>
+          <li>A municipal officer <strong>cannot unilaterally decide</strong> that a measure is beyond referendum.</li>
+          <li>The remedy is that the measure <strong>remains subject to referendum</strong> &mdash; the petition proceeds.</li>
+        </ul>
+      </div>
+      <div class="card warn" style="margin-top:14px">
+        <div class="eyebrow o">What <em>Grube</em> does not give you</div>
+        <ul class="bul">
+          <li>It does not invalidate ordinances with <strong>genuine, specific</strong> emergency justifications.</li>
+          <li>It does not extend a deadline you missed.</li>
+          <li>It arose under ORC § 731.30 in a village. <strong>Cleveland is a charter city</strong>, so expect argument about how directly it applies &mdash; though Cleveland's own § 36 likewise requires the emergency to be &ldquo;set forth and defined&rdquo; in a preamble, which is the same idea.</li>
+        </ul>
+      </div>
+    </div>
+  </div>`},
+
+/* 23 */ {part:"PART IV — THE PLAYBOOK", kicker:"Tier 4 · Amend", title:"Tier 4A &mdash; <em>Amend:</em> change Council's own rules first",
+  sub:"The cheapest structural fix requires no election, no signatures, and no lawyer. It requires eight votes.", html:`
+  <div class="card t">
+    <div class="eyebrow">Why start here</div>
+    <p>Council adopts its own rules of procedure. A rules change cannot override the charter, but it can bind Council's <em>practice</em> &mdash; and it can be adopted by simple majority in a single meeting. It is the highest-leverage, lowest-cost ask in this deck, and it is very hard to argue against in public.</p>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div>
+      <div class="card">
+        <div class="eyebrow o">Proposed Rule — Emergency Justification Standard</div>
+        <div class="code">No ordinance shall be placed on the agenda with
+an emergency designation unless its preamble
+states:
+
+  <b>(a)</b> the <b>specific date or deadline</b> creating
+      the urgency;
+  <b>(b)</b> the <b>specific harm</b> — in dollars, in
+      forfeited funds, or in days lost — that
+      would result from the ordinary 30-day
+      effective date; and
+  <b>(c)</b> why that harm <b>cannot be avoided</b> by
+      scheduling the ordinance earlier.
+
+A designation that recites only the categories
+of Charter § 36 shall be <b>out of order</b>.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="eyebrow o">Proposed Rule — Separate Roll Call</div>
+        <div class="code">The emergency designation shall be voted
+<b>separately</b> from passage of the ordinance,
+and the vote shall be recorded by <b>yea and nay</b>
+in the journal.</div>
+        <p style="margin-top:10px">This is the quiet powerhouse. Today a member who supports a project must accept the emergency clause bundled with it. Separate the votes and a member can say <strong>&ldquo;yes to the project, no to the shortcut&rdquo;</strong> &mdash; and constituents can see exactly who did.</p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="eyebrow o">Proposed Rule — Quarterly Emergency Report</div>
+        <div class="code">The Clerk shall publish quarterly the number and
+percentage of ordinances passed as emergency
+measures and with readings suspended, by
+committee and by sponsor.</div>
+        <p style="margin-top:10px">Measurement changes behavior before any rule does. And it costs the Clerk a query.</p>
+      </div>
+    </div>
+  </div>`},
+
+/* 24 */ {part:"PART IV — THE PLAYBOOK", kicker:"Tier 4 · Amend", title:"Tier 4B &mdash; <em>Amend:</em> the charter route",
+  sub:"If Council will not bind itself, the voters can. Draft language to start the conversation.", html:`
+  <div class="grid g21">
+    <div>
+      <div class="card">
+        <div class="eyebrow o">Draft charter amendment — for discussion with counsel</div>
+        <div class="code">PROPOSED AMENDMENT TO SECTION 36 OF THE
+CHARTER OF THE CITY OF CLEVELAND
+
+Section 36 is amended by adding the following:
+
+<b class="add">No ordinance or resolution shall be passed as an
+emergency measure unless its preamble states
+with particularity the specific date, deadline,
+or condition giving rise to the emergency and
+the specific injury to the City that would
+result from the ordinary effective date.</b>
+
+<b class="add">A preamble that recites only the general
+categories of this Section, without such
+particulars, shall not be sufficient to
+constitute an emergency measure.</b>
+
+<b class="add">The Clerk shall publish, not less than seven
+(7) days before final action, the full text of
+any ordinance proposed to be passed as an
+emergency measure, together with its preamble.</b>
+
+<b class="add">The declaration of emergency shall be voted upon
+separately from the passage of the ordinance,
+and both votes shall be recorded by yea and nay.</b></div>
+      </div>
+    </div>
+    <div>
+      <div class="card t">
+        <div class="eyebrow">The two routes to the ballot</div>
+        <ul class="bul t">
+          <li><strong>Route A &mdash; Council refers it.</strong> A two-thirds vote of Council submits an amendment to the electors. Fastest, no signatures. Ask for it first; a refusal is itself a story.</li>
+          <li><strong>Route B &mdash; Petition.</strong> Under Ohio Constitution Art. XVIII § 9, a petition signed by <strong>10 percent of the electors of the municipality</strong> requires Council to submit the amendment to the voters.</li>
+        </ul>
+      </div>
+      <div class="card warn" style="margin-top:14px">
+        <div class="eyebrow o">Design the ask to be hard to refuse</div>
+        <p>Note what this draft does <strong>not</strong> do. It does not abolish emergency measures. It does not add a waiting period to genuine emergencies. It does not change the vote threshold.</p>
+        <p>It requires Council to <strong>say why</strong> &mdash; and to vote on the shortcut separately from the substance. A member who opposes it has to explain, in public, why they should not have to give a reason.</p>
+      </div>
+      <div class="note"><b>MANDATORY:</b> Charter amendment language must be reviewed by an Ohio election-law attorney before circulation. Signature thresholds, the definition of &ldquo;electors,&rdquo; filing deadlines, and ballot-language requirements are technical and unforgiving.</div>
+    </div>
+  </div>`},
+
+/* 25 */ {part:"PART IV — THE PLAYBOOK", kicker:"Part IV · The Playbook", title:"The 90-day action calendar",
+  sub:"A realistic sequence for a small volunteer group starting from zero.", html:`
+  <table class="tbl">
+    <thead><tr><th style="width:14%">Window</th><th style="width:30%">Do this</th><th style="width:28%">Produces</th><th style="width:28%">People needed</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Days 1&ndash;14</td><td>Stand up the emergency log. Pull every 2026 ordinance from Legistar into a spreadsheet. Record emergency Y/N, readings suspended Y/N, sponsor, dollar amount, preamble text.</td><td>A baseline dataset nobody can dispute</td><td>2&ndash;3 people, ~4 hrs each</td></tr>
+      <tr><td class="k">Days 15&ndash;30</td><td>Score every 2026 emergency preamble against the five-question test. Compute the percentage that state a specific date and harm.</td><td>Your headline number</td><td>2&ndash;3 people</td></tr>
+      <tr><td class="k">Days 31&ndash;45</td><td>Publish a short findings brief. Send to Council members, the Clerk, Signal Cleveland, The Land, Cleveland Documenters, and the ACLU of Ohio.</td><td>Press coverage and a paper trail</td><td>1 writer, 1 organizer</td></tr>
+      <tr><td class="k">Days 46&ndash;60</td><td>Testify at three consecutive Council meetings using the Tier 2 script. Ask each member in writing for a commitment on preamble specificity.</td><td>On-the-record positions from named members</td><td>3&ndash;6 speakers</td></tr>
+      <tr><td class="k">Days 61&ndash;75</td><td>Formally request the three Council rules changes (Slide 23) through a sponsoring member. Publish who agreed to sponsor and who declined.</td><td>A legislative vehicle, or a refusal on record</td><td>1&ndash;2 people</td></tr>
+      <tr><td class="k">Days 76&ndash;90</td><td>Launch the monthly sponsor scorecard. Decide, based on Council's response, whether to prepare the charter amendment.</td><td>A standing accountability instrument</td><td>1 person, ongoing</td></tr>
+    </tbody>
+  </table>
+  <div class="card good" style="margin-top:16px">
+    <div class="eyebrow">Note what is not on this calendar</div>
+    <p>No petition drive. No litigation. Ninety days of disciplined public work costs a handful of volunteers a few hours a week and produces something Council has to answer. Save the expensive tools for the fight where they will matter most &mdash; and let everyone know you have them.</p>
+  </div>`},
+
+/* 26 */ {part:"PART IV — THE PLAYBOOK", kicker:"Tool", title:"The Emergency Ordinance Scorecard",
+  sub:"Print this. Fill one out per emergency item. Six completed cards are a public comment; sixty are a news story.", html:`
+  <table class="tbl tight">
+    <thead><tr><th style="width:34%">Field</th><th style="width:66%">Entry</th></tr></thead>
+    <tbody>
+      <tr><td class="k">File / ordinance number</td><td style="font-family:var(--mono);color:rgba(244,241,236,.35)">___________________________</td></tr>
+      <tr><td class="k">Date introduced / date passed</td><td style="font-family:var(--mono);color:rgba(244,241,236,.35)">______________ / ______________</td></tr>
+      <tr><td class="k">Sponsor(s) &amp; committee</td><td style="font-family:var(--mono);color:rgba(244,241,236,.35)">___________________________</td></tr>
+      <tr><td class="k">Subject in one plain sentence</td><td style="font-family:var(--mono);color:rgba(244,241,236,.35)">___________________________</td></tr>
+      <tr><td class="k">Dollar amount &amp; funding source</td><td style="font-family:var(--mono);color:rgba(244,241,236,.35)">___________________________</td></tr>
+      <tr><td class="k">Beneficiary (vendor / developer / dept.)</td><td style="font-family:var(--mono);color:rgba(244,241,236,.35)">___________________________</td></tr>
+      <tr><td class="k">Readings suspended?</td><td><span class="chip">YES</span><span class="chip">NO</span> &nbsp;&nbsp; Vote: ______ &ndash; ______</td></tr>
+      <tr><td class="k">Passed as emergency?</td><td><span class="chip o">YES</span><span class="chip">NO</span> &nbsp;&nbsp; Vote: ______ &ndash; ______</td></tr>
+      <tr><td class="k">Q1 &mdash; Preamble names a specific date or deadline?</td><td><span class="chip t">YES</span><span class="chip o">NO</span></td></tr>
+      <tr><td class="k">Q2 &mdash; Preamble names a specific harm from waiting?</td><td><span class="chip t">YES</span><span class="chip o">NO</span></td></tr>
+      <tr><td class="k">Q3 &mdash; Harm is quantified?</td><td><span class="chip t">YES</span><span class="chip o">NO</span></td></tr>
+      <tr><td class="k">Q4 &mdash; Reasoning is inside the ordinance?</td><td><span class="chip t">YES</span><span class="chip o">NO</span></td></tr>
+      <tr><td class="k">Q5 &mdash; Would it persuade a stranger?</td><td><span class="chip t">YES</span><span class="chip o">NO</span></td></tr>
+      <tr><td class="k">Franchise or public utility rate?</td><td><span class="chip o">YES &mdash; charter issue, escalate</span><span class="chip">NO</span></td></tr>
+      <tr><td class="k">Score (count of YES on Q1&ndash;Q5)</td><td style="font-family:var(--mono);color:rgba(244,241,236,.35)">______ / 5 &nbsp;&nbsp; <span style="color:var(--paper-2)">0&ndash;2 = challengeable &nbsp;·&nbsp; 3&ndash;4 = ask questions &nbsp;·&nbsp; 5 = legitimate</span></td></tr>
+    </tbody>
+  </table>`},
+
+/* 27 */ {part:"PART IV — THE PLAYBOOK", kicker:"Reference", title:"Myths and straight answers",
+  sub:"The five things people get wrong about this issue &mdash; including in documents circulating right now.", html:`
+  <div class="grid g2">
+    <div class="card warn">
+      <div class="eyebrow o">MYTH &mdash; &ldquo;Emergency ordinances can never be referended in Cleveland.&rdquo;</div>
+      <p><strong>Wrong, and this is the most important correction in the deck.</strong> That is the rule under ORC § 731.30 for non-charter cities. Cleveland Charter § 64 says the opposite for most measures: <em>&ldquo;Otherwise, emergency measures shall be subject to referendum in like manner as other ordinances.&rdquo;</em> Confirm the scope with counsel &mdash; but do not concede the point.</p>
+    </div>
+    <div class="card warn">
+      <div class="eyebrow o">MYTH &mdash; &ldquo;Council is acting illegally.&rdquo;</div>
+      <p>No. The emergency clause is lawful and the votes are real. The problem is not lawlessness; it is a lawful default that has swallowed the rule. Say it accurately or you will be dismissed &mdash; and the accurate version is damning enough.</p>
+    </div>
+    <div class="card warn">
+      <div class="eyebrow o">MYTH &mdash; &ldquo;This is a dictatorship.&rdquo;</div>
+      <p>Members are elected, meetings are public, agendas are published, and the charter was adopted by voters. What is true is narrower and more useful: <strong>routine emergency use removes the one mechanism voters have to act between elections.</strong> That sentence survives fact-checking. The other one does not.</p>
+    </div>
+    <div class="card warn">
+      <div class="eyebrow o">MYTH &mdash; &ldquo;You need a Council majority to fix this.&rdquo;</div>
+      <p>You need <strong>six members</strong> to withhold a two-thirds emergency vote &mdash; and eight to change Council's rules. Six is an organizing target, not a fantasy. The Flock ordinance cleared the majority bar and missed the emergency bar by one.</p>
+    </div>
+    <div class="card warn" style="grid-column:1/-1">
+      <div class="eyebrow o">MYTH &mdash; &ldquo;Nothing has changed, so nothing will.&rdquo;</div>
+      <p>Two things changed in 2026. Cleveland residents ran a live referendum on an emergency-adjacent ordinance, and the Ohio Supreme Court held that boilerplate emergency language will not defeat a petition. Both are recent enough that most Council offices have not yet adjusted to them. <strong>That gap is the opportunity.</strong></p>
+    </div>
+  </div>`},
+
+/* 28 */ {part:"REFERENCE", kicker:"Reference", title:"Key provisions at a glance",
+  sub:"Clip this slide. It is the citation sheet for testimony and press.", html:`
+  <table class="tbl">
+    <thead><tr><th style="width:22%">Provision</th><th style="width:48%">What it says</th><th style="width:30%">Why you cite it</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Cleveland Charter § 36<br><span style="font-weight:400;color:var(--paper-2)">Emergency Measures</span></td><td>Emergency measures are those for immediate preservation of public peace, property, health, or safety, <em>or</em> providing for the usual daily operation of a municipal department, with the emergency set forth and defined in a preamble. Two-thirds of elected members required. Franchises and public utility rate regulation may never be emergency measures.</td><td>The source of the shortcut &mdash; and of the preamble requirement you will hold them to.</td></tr>
+      <tr><td class="k">Cleveland Charter § 59<br><span style="font-weight:400;color:var(--paper-2)">Referendum</span></td><td>A non-emergency ordinance does not take effect for 30 days. A petition filed with the Clerk of Council within that window requesting repeal or submission to the electors prevents the ordinance from becoming operative.</td><td>The 30-day window and the suspensive effect of filing.</td></tr>
+      <tr><td class="k">Cleveland Charter § 64<br><span style="font-weight:400;color:var(--paper-2)">Referendum on Emergency Measures</span></td><td>&ldquo;Otherwise, emergency measures shall be subject to referendum in like manner as other ordinances, except that they shall go into effect at the time indicated in the ordinances.&rdquo; Effective Nov. 4, 2008.</td><td>The strongest provision residents have, and the least known.</td></tr>
+      <tr><td class="k">ORC § 731.30</td><td>Emergency measures must be necessary for immediate preservation of public peace, health, or safety; reasons stated in one section; two-thirds vote of all members elected; immediate effect.</td><td>The statewide baseline, and the statute construed in <em>Grube</em>.</td></tr>
+      <tr><td class="k">Ohio Const. Art. XVIII § 9</td><td>Charter amendments may be submitted to the electors by a two-thirds vote of the legislative authority, or must be submitted on a petition signed by ten per centum of the electors of the municipality.</td><td>The two routes to a charter amendment.</td></tr>
+      <tr><td class="k"><em>State ex rel. McNamara-Smith v. Grube</em><br><span style="font-weight:400;color:var(--paper-2)">2026-Ohio-3035 (Aug. 7, 2026)</span></td><td>Parroting the statutory emergency language is not enough; the measure must state specific reasons; after-the-fact justifications do not count; whether a measure is subject to referendum is a judicial question.</td><td>The case that turns a good-government argument into a legal one.</td></tr>
+    </tbody>
+  </table>`},
+
+/* 29 */ {part:"REFERENCE", kicker:"Reference", title:"Sources &amp; where to look things up",
+  sub:"Everything in this deck is drawn from public records and published reporting.", html:`
+  <div class="grid g2">
+    <div>
+      <div class="card t">
+        <div class="eyebrow">Primary sources &mdash; check these yourself</div>
+        <ul class="bul t">
+          <li><strong>Cleveland Legistar</strong> &mdash; every ordinance, sponsor, committee, status, and full text. <span style="font-family:var(--mono);font-size:.88em">cityofcleveland.legistar.com</span></li>
+          <li><strong>The City Record</strong> &mdash; the official journal of Council proceedings.</li>
+          <li><strong>Cleveland Charter &amp; Codified Ordinances</strong> &mdash; American Legal Publishing code library; also linked from clevelandcitycouncil.gov.</li>
+          <li><strong>Cuyahoga County Board of Elections</strong> &mdash; initiative and referendum handbook, signature thresholds, filing deadlines.</li>
+          <li><strong>Ohio Supreme Court</strong> &mdash; opinions and case docket, supremecourt.ohio.gov.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="eyebrow o">Reporting and analysis cited in this deck</div>
+        <ul class="bul">
+          <li><strong>The Land</strong> &mdash; &ldquo;The pace of passage: How quickly city council makes laws and what that means for Clevelanders&rdquo; (Cleveland Documenters analysis of The City Record, Jan. 2020 &ndash; May 2021).</li>
+          <li><strong>Footnote4a</strong> &mdash; &ldquo;Cleveland Makes First Flock Referendum Possible.&rdquo;</li>
+          <li><strong>Court News Ohio</strong> &mdash; case summary, <em>State ex rel. McNamara-Smith v. Grube</em>, 2026-Ohio-3035.</li>
+          <li><strong>Scioto Valley Guardian</strong> &mdash; &ldquo;Ohio Supreme Court ruling on &lsquo;emergency&rsquo; laws draws scrutiny in Circleville.&rdquo;</li>
+          <li><strong>Cleveland City Council</strong> &mdash; &ldquo;Legislative Process&rdquo; and &ldquo;Charter &amp; Codified Ordinances.&rdquo;</li>
+          <li><strong>ACLU of Ohio</strong> &mdash; public comment on Ordinance 683-2026.</li>
+          <li><strong>Signal Cleveland / Cleveland Documenters</strong> &mdash; ongoing meeting coverage.</li>
+        </ul>
+      </div>
+      <div class="note"><b>VERIFY BEFORE YOU ACT:</b> Charter text, signature thresholds, and filing deadlines change. Confirm with the Clerk of Council and the Cuyahoga County Board of Elections before circulating any petition. This deck is civic education, not legal advice.</div>
+    </div>
+  </div>`},
+
+/* 30 */ {closer:true, part:"CLOSING", kicker:"Closing", title:"Closing", html:`
+  <img src="${LOGO}" alt="The FixOurStreets216 Project" style="width:clamp(78px,11vh,120px);margin-bottom:22px;
+    filter:drop-shadow(0 0 10px rgba(255,255,255,1)) drop-shadow(0 0 26px rgba(255,255,255,.55)) drop-shadow(0 0 54px rgba(255,255,255,.26))">
+  <h1>An emergency everyone can see coming<br>is <em>not an emergency.</em></h1>
+  <div class="csub" style="max-width:70ch">Cleveland's charter already gives residents more power over emergency measures than almost anyone in the city realizes. The work is to use it &mdash; log the ordinances, score the preambles, ask for the six votes, publish the count, and make the shortcut cost something.</div>
+  <div class="crule"></div>
+  <div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin-bottom:18px">
+    <span class="chip t">WATCH</span><span class="chip t">DEMAND</span><span class="chip o">CHALLENGE</span><span class="chip o">AMEND</span>
+  </div>
+  <div class="cmeta">
+    The FixOurStreets216 Project &nbsp;·&nbsp; Cleveland, Ohio<br>
+    Neighborhoods First &nbsp;·&nbsp; #WeThePeople<br>
+    fixourstreets216.com &nbsp;·&nbsp; ${PROJECT} &nbsp;·&nbsp; ${DATE}
+  </div>`}
+];
+
+/* ============ RENDER ============ */
+const deck = document.getElementById('deck');
+S.forEach((s,i)=>{
+  const el = document.createElement('section');
+  el.className = 'slide' + (s.cover?' cover':'') + (s.closer?' closer':'');
+  let head = '';
+  if(!s.cover && !s.closer){
+    head = `<div class="shead">
+      <img class="mark" src="${LOGO}" alt="FOS216">
+      <div class="txt">
+        <div class="kicker">${s.kicker||''}</div>
+        <h1 class="stitle">${s.title}</h1>
+        ${s.sub?`<div class="sub">${s.sub}</div>`:''}
+      </div>
+    </div>`;
+  }
+  const tb = `<div class="tblock">
+    <div class="tb keep"><span class="lbl">Project</span><span class="val o">${PROJECT}</span></div>
+    <div class="tb"><span class="lbl">Client</span><span class="val">Public Record</span></div>
+    <div class="tb"><span class="lbl">Scale</span><span class="val">N.T.S.</span></div>
+    <div class="tb"><span class="lbl">Date</span><span class="val">${DATE}</span></div>
+    <div class="tb"><span class="lbl">Rev</span><span class="val">${REV}</span></div>
+    <div class="tb grow"><span class="lbl">Sheet Title</span><span class="val t">${s.part}</span></div>
+    <div class="tb keep" style="border-right:none"><span class="lbl">Sheet</span><span class="val o">${String(i+1).padStart(2,'0')} / ${String(S.length).padStart(2,'0')}</span></div>
+  </div>`;
+  el.innerHTML = head + `<div class="body">${s.html}</div>` + tb;
+  deck.appendChild(el);
+});
+
+/* ============ NAV ============ */
+let cur = 0;
+const slides = [...document.querySelectorAll('.slide')];
+function go(n){
+  cur = Math.max(0, Math.min(S.length-1, n));
+  slides.forEach((el,i)=>el.classList.toggle('on', i===cur));
+  document.getElementById('bar').style.width = ((cur+1)/S.length*100)+'%';
+  const b = slides[cur].querySelector('.body'); if(b) b.scrollTop = 0;
+  try{ location.hash = 's'+(cur+1); }catch(e){}
+}
+document.getElementById('bNext').onclick = ()=>go(cur+1);
+document.getElementById('bPrev').onclick = ()=>go(cur-1);
+document.getElementById('bIdx').onclick = ()=>document.getElementById('idx').classList.toggle('on');
+document.getElementById('bFs').onclick = ()=>{
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); }
+  else { document.exitFullscreen&&document.exitFullscreen(); }
+};
+
+const ig = document.getElementById('igrid');
+S.forEach((s,i)=>{
+  const d = document.createElement('div');
+  d.className = 'icell';
+  const t = (s.title||'').replace(/<[^>]+>/g,'');
+  d.innerHTML = `<div class="n">${String(i+1).padStart(2,'0')} &nbsp;·&nbsp; ${s.part}</div><div class="t">${t}</div>`;
+  d.onclick = ()=>{ go(i); document.getElementById('idx').classList.remove('on'); };
+  ig.appendChild(d);
+});
+
+document.addEventListener('keydown', e=>{
+  const idx = document.getElementById('idx');
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); go(cur+1); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(cur-1); }
+  else if(e.key==='Home'){ go(0); }
+  else if(e.key==='End'){ go(S.length-1); }
+  else if(e.key.toLowerCase()==='i'){ idx.classList.toggle('on'); }
+  else if(e.key.toLowerCase()==='f'){ document.getElementById('bFs').click(); }
+  else if(e.key.toLowerCase()==='p'){ e.preventDefault(); window.print(); }
+  else if(e.key==='Escape'){ idx.classList.remove('on'); }
+});
+
+let tsX=null, tsY=null;
+document.addEventListener('touchstart', e=>{ tsX=e.changedTouches[0].clientX; tsY=e.changedTouches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e=>{
+  if(tsX===null) return;
+  const dx = e.changedTouches[0].clientX - tsX, dy = e.changedTouches[0].clientY - tsY;
+  if(Math.abs(dx) > 62 && Math.abs(dx) > Math.abs(dy)*1.6){ go(cur + (dx<0?1:-1)); }
+  tsX=null;
+}, {passive:true});
+
+const m = (location.hash||'').match(/^#s(\d+)$/);
+go(m ? parseInt(m[1],10)-1 : 0);
+</script>
+</body>
+</html>
